@@ -22,16 +22,17 @@
 #define GRID_SPACING 1.0f                                  // Espaciado entre las divisiones de la cuadrícula
 #define CUBE_SIZE 1.0f                                     // Tamaño del cubo (Ancho, Alto, Largo)
 #define CUBE_POSITION (Vector3){0.0f, CUBE_SIZE / 2, 0.0f} // Posición del cubo central en el mundo
-
+#define ENEMIGO_POSICION_INICIAL (Vector3){-10.0f, 0.6f, -10.0f}
 // Constantes de la Interfaz (UI)
 #define TEXT_POS_X 10     // Posición X del texto en la pantalla
 #define TEXT_POS_Y 10     // Posición Y del texto en la pantalla
 #define TEXT_FONT_SIZE 20 // Tamaño de la fuente del texto
 
 // Actualiza la posición de la cámara con respecto a la posición de un objeto, de forma suave.
-void actualizarPosicionCamara(Vector3 posicionObjeto, Camera3D &camera);
 
-void inicializarJuego(Camera3D &camera);
+
+void inicializarJuego(Camera3D &camera, Jugador & jugador1, std::vector<Moneda> &monedas, Enemigo &enemigo1);
+
 
 int main()
 {
@@ -41,7 +42,8 @@ int main()
     InitAudioDevice(); // Abre un canal para el audio
 
     // Define la cámara 3D con sus parámetros iniciales
-   
+    Camera3D camera = {0};
+
     Jugador jugador1 = Jugador(5.0f, RED, 8.0f, CUBE_POSITION, CUBE_SIZE);
 
     // === CREACIÓN RÁPIDA DE LA COLECCIÓN DE MONEDAS ===
@@ -64,7 +66,7 @@ int main()
 
     int score = 0; // Puntuación, en nuestro caso número de monedas obtenidas.
 
-    Enemigo enemigo1((Vector3){-10.0f, 0.6f, -10.0f}, 3.5f, 1.2f, PURPLE);
+    Enemigo enemigo1 (ENEMIGO_POSICION_INICIAL, 3.5f, 1.2f, PURPLE);
     bool juegoTerminado = false; // Flag para pausar si te atrapa
 
     // Establece el objetivo de fotogramas por segundo de la ventana
@@ -76,14 +78,17 @@ int main()
     float gravedad = -9.8f;
     float suavidadCamara = 7.0f;
 
-    inicializarJuego(camera);
+    inicializarJuego(camera, jugador1, monedas, enemigo1);
     // Bucle principal del juego
     while (!WindowShouldClose())
     {
 
         if (juegoTerminado)
         {
-            //Reiniciar del juego
+            // Reiniciar del juego
+            inicializarJuego(camera, jugador1, monedas, enemigo1);
+            score= 0;
+            juegoTerminado = false;
         }
         // =========================================================================
         // 1. SECCIÓN DE ENTRADA (Capturar lo que hace el usuario)
@@ -222,13 +227,29 @@ int main()
     CloseWindow();
 }
 
-void inicializarJuego(Camera3D &camera)
+void inicializarJuego(Camera3D &camera, Jugador & jugador1, std::vector<Moneda> &monedas, Enemigo &enemigo1)
 {
-    //Inicializar todos los elementos del juego
- Camera3D camera = {0};
+    // Inicializar todos los elementos del juego
+
     camera.position = INITIAL_CAMERA_POSITION;
     camera.target = INITIAL_CAMERA_TARGET;
     camera.up = INITIAL_CAMERA_UP;
     camera.fovy = INITIAL_CAMERA_FOVY;
     camera.projection = CAMERA_PERSPECTIVE; // Perspectiva real: objetos lejanos se ven más pequeños
+
+    Jugador(5.0f, RED, 8.0f, CUBE_POSITION, CUBE_SIZE);
+
+    jugador1.setPosicion(CUBE_POSITION);
+    jugador1.setVelocidadY(0.0f);
+
+    //Volvemos todas las monedas visibles
+    for (Moneda &moneda : monedas)
+    {
+        moneda.setActiva(true);
+
+    }
+
+    //Reinicializamos la posición del enemigo
+
+    enemigo1.setPosicion(ENEMIGO_POSICION_INICIAL);
 }
