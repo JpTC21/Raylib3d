@@ -5,7 +5,7 @@
 #include "Moneda.hpp"
 #include <vector>
 #include "Enemigo.hpp"
-
+#include "Zona Segura.hpp"
 // C++
 #define SCREEN_WIDTH 900  // Ancho de la ventana en píxeles
 #define SCREEN_HEIGHT 600 // Alto de la ventana en píxeles
@@ -68,6 +68,8 @@ int main()
 
     Enemigo enemigo1 (ENEMIGO_POSICION_INICIAL, 3.5f, 1.2f, PURPLE);
     bool juegoTerminado = false; // Flag para pausar si te atrapa
+
+ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);
 
     // Establece el objetivo de fotogramas por segundo de la ventana
     SetTargetFPS(MAX_FPS);
@@ -153,18 +155,22 @@ int main()
 
         // Guardamos la posición final en el jugador
         jugador1.setPosicion(nuevaPosicion);
-        // Acualizar Enemigo
+
+        //Guardar posicion enemigo1 antes de cazar
+        Vector3 posicionEnemigoAntesDeCazar = enemigo1.getPosicion();
+
+         // Acualizar Enemigo
         enemigo1.cazar(jugador1.getPosicion(), GetFrameTime());
 
-        if (CheckCollisionSpheres(
-                jugador1.getPosicion(),
-                jugador1.getSize(),
-                enemigo1.getPosicion(),
-                enemigo1.getSize()))
+        if (CheckCollisionBoxes (enemigo1.getBoundingBox(), zonaSegura1.getBoundingBox()))
+        {
+            enemigo1.setPosicion(posicionEnemigoAntesDeCazar);
+        }
+
+        if (CheckCollisionBoxes(jugador1.getBoundingBox(), enemigo1.getBoundingBox()))
         {
             juegoTerminado = true;
         }
-
         // Usamos un bucle por referencia (&) para modificar el estado de cada moneda original
         for (Moneda &moneda : monedas)
         {
@@ -204,6 +210,8 @@ int main()
         }
 
         enemigo1.dibujar();
+
+        zonaSegura1.dibujar();
 
         // Dibuja la cuadrícula de guía en el suelo
         DrawGrid(GRID_SLICES, GRID_SPACING);
