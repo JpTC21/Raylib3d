@@ -1,22 +1,26 @@
 #pragma once
 #include "raylib.h"
 
-//Cabecera
+// Cabecera
 
-//Clase que define los proyectiles
+// Clase que define los proyectiles
 class Proyectil
 {
 private:
-    /* data */
+    Vector3 posicion;
+    float velocidad;
+    float size;
+    Vector3 objetivo;
+
 public:
-    Proyectil(/* args */);
-    ~Proyectil();
+    Proyectil( Vector3 posicionInicial, float velocidadInicial, float nuesizeInicial, Vector3 objetivoInicial);
+
+    // Métodos getters (de obtención)
+    Vector3 getPosicion() { return posicion; }
+    float getVelocidad() { return velocidad; }
+    float getSize() { return size; }
+
+    // Métodos setters (de modificación)
+    void setPosicion(Vector3 nuevaPosicion) { posicion = nuevaPosicion; }
+    void actualizar();
 };
-
-Proyectil::Proyectil(/* args */)
-{
-}
-
-Proyectil::~Proyectil()
-{
-}

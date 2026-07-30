@@ -66,7 +66,7 @@ int main()
 
     int score = 0; // Puntuación, en nuestro caso número de monedas obtenidas.
 
-    Enemigo enemigo1 (ENEMIGO_POSICION_INICIAL, 3.5f, 1.2f, PURPLE);
+    Enemigo enemigo1 (ENEMIGO_POSICION_INICIAL, 3.5f, 1.2f, PURPLE, 2.0f);
     bool juegoTerminado = false; // Flag para pausar si te atrapa
 
 ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);

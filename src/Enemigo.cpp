@@ -1,21 +1,21 @@
 #include "Enemigo.hpp"
 #include "raymath.h"
+#include <vector>
 
-Enemigo::Enemigo(Vector3 posInicial, float vel, float tamano, Color col)
+Enemigo::Enemigo(Vector3 posInicial, float vel, float tamano, Color col, float tiempoEntreProyectilesInicial)
 {
     posicion = posInicial;
     velocidad = vel;
     size = tamano;
     color = col;
+    tiempoEntreProyectiles = tiempoEntreProyectilesInicial;
 }
 
 BoundingBox Enemigo::getBoundingBox()
 {
     return {
-        (Vector3){posicion.x - size/ 2, posicion.y - size / 2, posicion.z - size / 2},
-        (Vector3){posicion.x + size/ 2, posicion.y + size / 2, posicion.z + size / 2}
-};
-
+        (Vector3){posicion.x - size / 2, posicion.y - size / 2, posicion.z - size / 2},
+        (Vector3){posicion.x + size / 2, posicion.y + size / 2, posicion.z + size / 2}};
 }
 
 void Enemigo::cazar(Vector3 posicionJugador, float deltaTime)
@@ -46,4 +46,10 @@ void Enemigo::dibujar() const
     DrawCube(posicion, size, size, size, color);
     // Opcional: Dibuja un borde negro para que resalte más en el entorno 3D
     DrawCubeWires(posicion, size, size, size, BLACK);
+}
+
+void Enemigo::disparar(Vector3 posicionInicial, float velocidadInicial, float sizeInicial)
+{
+    Proyectil nuevoProyectil(posicionInicial, velocidadInicial, sizeInicial);
+    listaProyectiles.push_back(nuevoProyectil);
 }
