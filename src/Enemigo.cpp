@@ -48,8 +48,14 @@ void Enemigo::dibujar() const
     DrawCubeWires(posicion, size, size, size, BLACK);
 }
 
-void Enemigo::disparar(Vector3 posicionInicial, float velocidadInicial, float sizeInicial)
+void Enemigo::disparar(Vector3 posicionInicial, float velocidadInicial, float sizeInicial, Vector3 objetivo, float tiempoDeVida)
 {
-    Proyectil nuevoProyectil(posicionInicial, velocidadInicial, sizeInicial);
+    tiempoUltimoProyectil += GetFrameTime();
+    if(tiempoUltimoProyectil > tiempoEntreProyectiles){
+
+        tiempoUltimoProyectil - tiempoEntreProyectiles;
+
+    Proyectil nuevoProyectil(posicionInicial, velocidadInicial, sizeInicial, objetivo, tiempoDeVida);
     listaProyectiles.push_back(nuevoProyectil);
+    }
 }

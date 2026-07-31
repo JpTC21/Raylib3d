@@ -18,11 +18,14 @@
 #define INITIAL_CAMERA_FOVY 45.0f                           // Amplitud del lente (el ángulo de apertura vertical)
 
 // Constantes del Entorno y Objetos
-#define GRID_SLICES 20                                     // Número de divisiones en la cuadrícula
-#define GRID_SPACING 1.0f                                  // Espaciado entre las divisiones de la cuadrícula
-#define CUBE_SIZE 1.0f                                     // Tamaño del cubo (Ancho, Alto, Largo)
-#define CUBE_POSITION (Vector3){0.0f, CUBE_SIZE / 2, 0.0f} // Posición del cubo central en el mundo
-#define ENEMIGO_POSICION_INICIAL (Vector3){-10.0f, 0.6f, -10.0f}
+#define GRID_SLICES 20                                           // Número de divisiones en la cuadrícula
+#define GRID_SPACING 1.0f                                        // Espaciado entre las divisiones de la cuadrícula
+#define CUBE_SIZE 1.0f                                           // Tamaño del cubo (Ancho, Alto, Largo)
+#define CUBE_POSITION (Vector3){0.0f, CUBE_SIZE / 2, 0.0f}       // Posición del cubo central en el mundo
+#define ENEMIGO_POSICION_INICIAL (Vector3){-10.0f, 0.6f, -10.0f} // Posicion del enemigo inicial
+#define TIEMPO_VIDA_PROYECTIL 10.0f                              // Tiempo de vida del proyectil por defecto
+#define VELOCIDAD_PROYECTIL 5.0f    
+
 // Constantes de la Interfaz (UI)
 #define TEXT_POS_X 10     // Posición X del texto en la pantalla
 #define TEXT_POS_Y 10     // Posición Y del texto en la pantalla
@@ -30,9 +33,7 @@
 
 // Actualiza la posición de la cámara con respecto a la posición de un objeto, de forma suave.
 
-
-void inicializarJuego(Camera3D &camera, Jugador & jugador1, std::vector<Moneda> &monedas, Enemigo &enemigo1);
-
+void inicializarJuego(Camera3D &camera, Jugador &jugador1, std::vector<Moneda> &monedas, Enemigo &enemigo1);
 
 int main()
 {
@@ -66,10 +67,13 @@ int main()
 
     int score = 0; // Puntuación, en nuestro caso número de monedas obtenidas.
 
-    Enemigo enemigo1 (ENEMIGO_POSICION_INICIAL, 3.5f, 1.2f, PURPLE, 2.0f);
+    Enemigo enemigo1(ENEMIGO_POSICION_INICIAL, 3.5f, 1.2f, PURPLE, 2.0f);
+
+    float tiempoTranscurrido = 0.0f;
+
     bool juegoTerminado = false; // Flag para pausar si te atrapa
 
-ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);
+    ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);
 
     // Establece el objetivo de fotogramas por segundo de la ventana
     SetTargetFPS(MAX_FPS);
@@ -84,12 +88,13 @@ ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);
     // Bucle principal del juego
     while (!WindowShouldClose())
     {
+        tiempoTranscurrido += GetFrameTime();
 
         if (juegoTerminado)
         {
             // Reiniciar del juego
             inicializarJuego(camera, jugador1, monedas, enemigo1);
-            score= 0;
+            score = 0;
             juegoTerminado = false;
         }
         // =========================================================================
@@ -156,13 +161,25 @@ ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);
         // Guardamos la posición final en el jugador
         jugador1.setPosicion(nuevaPosicion);
 
-        //Guardar posicion enemigo1 antes de cazar
+        // Guardar posicion enemigo1 antes de cazar
         Vector3 posicionEnemigoAntesDeCazar = enemigo1.getPosicion();
 
-         // Acualizar Enemigo
+        // Acualizar Enemigo
         enemigo1.cazar(jugador1.getPosicion(), GetFrameTime());
 
-        if (CheckCollisionBoxes (enemigo1.getBoundingBox(), zonaSegura1.getBoundingBox()))
+            enemigo1.disparar(enemigo1.getPosicion(), VELOCIDAD_PROYECTIL, 0.5f, jugador1.getPosicion(), TIEMPO_VIDA_PROYECTIL);
+
+             for( Proyectil &proyectil : enemigo1.getlistaProyectiles())
+        {
+            proyectil.actualizar();
+
+            if (proyectil.getTiempoRestanteDeVida() < 0)
+            {
+
+            }
+        }
+
+        if (CheckCollisionBoxes(enemigo1.getBoundingBox(), zonaSegura1.getBoundingBox()))
         {
             enemigo1.setPosicion(posicionEnemigoAntesDeCazar);
         }
@@ -210,6 +227,12 @@ ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);
         }
 
         enemigo1.dibujar();
+        enemigo1.getlistaProyectiles();
+
+        for( Proyectil &proyectil : enemigo1.getlistaProyectiles())
+        {
+            proyectil.dibujar();
+        }
 
         zonaSegura1.dibujar();
 
@@ -235,7 +258,7 @@ ZonaSegura zonaSegura1(CUBE_POSITION, CUBE_SIZE * 2);
     CloseWindow();
 }
 
-void inicializarJuego(Camera3D &camera, Jugador & jugador1, std::vector<Moneda> &monedas, Enemigo &enemigo1)
+void inicializarJuego(Camera3D &camera, Jugador &jugador1, std::vector<Moneda> &monedas, Enemigo &enemigo1)
 {
     // Inicializar todos los elementos del juego
 
@@ -250,14 +273,13 @@ void inicializarJuego(Camera3D &camera, Jugador & jugador1, std::vector<Moneda> 
     jugador1.setPosicion(CUBE_POSITION);
     jugador1.setVelocidadY(0.0f);
 
-    //Volvemos todas las monedas visibles
+    // Volvemos todas las monedas visibles
     for (Moneda &moneda : monedas)
     {
         moneda.setActiva(true);
-
     }
 
-    //Reinicializamos la posición del enemigo
+    // Reinicializamos la posición del enemigo
 
     enemigo1.setPosicion(ENEMIGO_POSICION_INICIAL);
 }
