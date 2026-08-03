@@ -53,9 +53,14 @@ void Enemigo::disparar(Vector3 posicionInicial, float velocidadInicial, float si
     tiempoUltimoProyectil += GetFrameTime();
     if(tiempoUltimoProyectil > tiempoEntreProyectiles){
 
-        tiempoUltimoProyectil - tiempoEntreProyectiles;
+        tiempoUltimoProyectil -= tiempoEntreProyectiles;
 
     Proyectil nuevoProyectil(posicionInicial, velocidadInicial, sizeInicial, objetivo, tiempoDeVida);
     listaProyectiles.push_back(nuevoProyectil);
     }
+} 
+
+void Enemigo::eliminarTodosLosProyectiles()
+{
+    listaProyectiles.clear();
 }

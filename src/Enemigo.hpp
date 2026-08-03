@@ -29,4 +29,5 @@ public:
     void cazar(Vector3 posicionJugador, float deltaTime);
     void dibujar() const;
     void disparar(Vector3 posicionInicial, float velocidadInicial, float sizeInicial, Vector3 objetivo, float tiempoDeVida);
+    void eliminarTodosLosProyectiles();
 };

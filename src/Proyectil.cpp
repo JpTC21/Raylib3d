@@ -9,11 +9,11 @@ Proyectil::Proyectil(Vector3 posicionInicial, float velocidadInicial, float size
     size = sizeInicial;
     objetivo = objetivoInicial;
     tiempoRestanteDeVida = tiempoRestanteDeVidaInicial;
+    direccion = Vector3Normalize(Vector3Subtract(objetivoInicial, posicionInicial));
 }
 
 void Proyectil::actualizar()
 {
-    Vector3 direccion = Vector3Subtract(objetivo, posicion);
     Vector3 movimiento = Vector3Scale(direccion, velocidad * GetFrameTime());
     posicion = Vector3Add(posicion, movimiento);
 
