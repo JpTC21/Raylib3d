@@ -24,10 +24,11 @@ BoundingBox Jugador::getBoundingBox()
 };
 
 }
-void Jugador::saltar()
+void Jugador::saltar(Sound sonidoSalto)
 {
     if (posicion.y <= size / 2.0f)
     {
-        velocidadY = fuerzaSalto; // Le damos el impulso inicial
+        velocidadY = fuerzaSalto;
+        PlaySound(sonidoSalto); // Le damos el impulso inicial
     }
 }

@@ -18,13 +18,13 @@
 #define INITIAL_CAMERA_FOVY 45.0f                           // Amplitud del lente (el ángulo de apertura vertical)
 
 // Constantes del Entorno y Objetos
-#define GRID_SLICES 20                                           // Número de divisiones en la cuadrícula
+#define GRID_SLICES 50                                          // Número de divisiones en la cuadrícula
 #define GRID_SPACING 1.0f                                        // Espaciado entre las divisiones de la cuadrícula
-#define JUGADOR_SIZE 0.85f                                           // Tamaño del cubo (Ancho, Alto, Largo)
+#define JUGADOR_SIZE 0.6f                                           // Tamaño del cubo (Ancho, Alto, Largo)
 #define CUBE_POSITION (Vector3){0.0f, JUGADOR_SIZE / 2, 0.0f}       // Posición del cubo central en el mundo
 #define ENEMIGO_POSICION_INICIAL (Vector3){-10.0f, 0.6f, -10.0f} // Posicion del enemigo inicial
 #define TIEMPO_VIDA_PROYECTIL 5.0f                              // Tiempo de vida del proyectil por defecto
-#define VELOCIDAD_PROYECTIL 25.0f 
+#define VELOCIDAD_PROYECTIL 10.0f 
 #define SIZE_BALA 0.25f
 #define TIEMPO_ENTRE_PROYECTILES 0.5f
 
@@ -82,11 +82,22 @@ int main()
 
     Sound sonidoMoneda = LoadSound("resources/moneda.mp3");
 
+    Music musicaFondo = LoadMusicStream("resources/nocopyrightsound633-arcade-beat-323176.mp3");
+    musicaFondo.looping = true;
+  
+    Sound sonidoMuerte = LoadSound("resources/ivan_luzan-game-over-160612.mp3");
+
+    Sound sonidoSalto = LoadSound("resources/vadim_makes_sound-retro-arcade-item-pickup-554465.mp3");
+
+
     // Objetos del entorno
     float gravedad = -9.8f;
     float suavidadCamara = 7.0f;
 
     inicializarJuego(camera, jugador1, monedas, enemigo1);
+
+PlayMusicStream(musicaFondo);
+
     // Bucle principal del juego
     while (!WindowShouldClose())
     {
@@ -98,6 +109,8 @@ int main()
             inicializarJuego(camera, jugador1, monedas, enemigo1);
             score = 0;
             juegoTerminado = false;
+            tiempoTranscurrido = 0.0f;
+            SeekMusicStream(musicaFondo, 0.0f);
         }
         // =========================================================================
         // 1. SECCIÓN DE ENTRADA (Capturar lo que hace el usuario)
@@ -129,15 +142,18 @@ int main()
         }
 
         // Eje y
-        if (IsKeyDown(KEY_SPACE))
+        if (IsKeyDown(KEY_SPACE))   
         {
-            jugador1.saltar();
+            jugador1.saltar(sonidoSalto);
         }
 
         // =========================================================================
         // 2. SECCIÓN DE ACTUALIZACIÓN (Cálculos, físicas y lógica)
         // =========================================================================
 
+        UpdateMusicStream(musicaFondo);
+
+    
         // Aplicamos físicas sobre la velocidad en el eje Y.
         if (nuevaPosicion.y > alturaSuelo || jugador1.getVelocidadY() > 0.0f)
         {
@@ -177,6 +193,8 @@ int main()
 
             if (CheckCollisionBoxSphere(jugador1.getBoundingBox(), proyectil.getPosicion(), proyectil.getSize()))
         {
+            
+            PlaySound(sonidoMuerte);
             juegoTerminado = true;
         }
         }
@@ -190,7 +208,8 @@ int main()
         }
 
         if (CheckCollisionBoxes(jugador1.getBoundingBox(), enemigo1.getBoundingBox()))
-        {
+        {          
+            PlaySound(sonidoMuerte);
             juegoTerminado = true;
         }
         // Usamos un bucle por referencia (&) para modificar el estado de cada moneda original
@@ -253,11 +272,25 @@ int main()
         // 2. Lo dibujamos en pantalla pasando el texto convertido con .c_str()
         DrawText(textoScore.c_str(), TEXT_POS_X, TEXT_POS_Y, TEXT_FONT_SIZE, DARKGRAY);
 
+        //Añadir tiempoa la IU del juego
+        int minutos = (int)tiempoTranscurrido / 60;
+        int segundos = (int)tiempoTranscurrido % 60;
+
+        const char *textoTiempo = TextFormat("%02i:%02i", minutos, segundos );
+
+        int anchoTexto = MeasureText(textoTiempo, TEXT_FONT_SIZE);
+        int posXCentrado = (GetScreenWidth() /2) - (anchoTexto /2);
+
+        DrawText(textoTiempo, posXCentrado, TEXT_POS_Y, TEXT_FONT_SIZE, DARKGRAY);
+
         // Terminar de dibujar en la ventana
         EndDrawing();
     }
 
     UnloadSound(sonidoMoneda); // Libera la memoria del archivo de audio
+
+    UnloadMusicStream(musicaFondo);
+
     CloseAudioDevice();        // Cierra la tarjeta de sonido
     // Cierra la ventana y libera los recursos
     CloseWindow();
